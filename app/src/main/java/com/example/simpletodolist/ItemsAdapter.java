@@ -3,6 +3,7 @@ package com.example.simpletodolist;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -13,7 +14,12 @@ import java.util.List;
 // Responsible for displaying data from the model into a row in the recycler view
 public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ViewHolder> {
 
-    // MainActivity will implement
+    // This interface is to help with the Edit item feature
+    public interface OnClickListener{
+        void onItemClicked(int position);
+    }
+
+    // This interface is to help with the deleting item interface
     public interface OnLongClickListener{
         // The class that will implement this needs to now the position of where the user
         // did the long press, so it notify the adapter that this is the position
@@ -24,11 +30,13 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ViewHolder> 
     // Class members
     List<String> items;
     OnLongClickListener longClickListener;
+    OnClickListener clickListener;
 
     // Constructor
-    public ItemsAdapter(List<String> items, OnLongClickListener longClickListener){
+    public ItemsAdapter(List<String> items, OnLongClickListener longClickListener, OnClickListener click_listener){
         this.items = items;
         this.longClickListener = longClickListener;
+        this.clickListener = click_listener;
     }
 
     // Involves inflating a layout from XML and returning the ViewHolder
@@ -72,6 +80,14 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ViewHolder> 
         // Update the view inside of the view holder wih this data
         public void bind(String item) {
             tvItem.setText(item);
+
+            tvItem.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Notify the listener on which position was clicked
+                    clickListener.onItemClicked(getAdapterPosition());
+                }
+            });
             tvItem.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
